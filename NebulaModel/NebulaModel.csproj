@@ -38,6 +38,9 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\Libs\Assembly-CSharp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -59,8 +62,6 @@
     <Compile Include="DataStructures\Float3.cs" />
     <Compile Include="DataStructures\NebulaAnimationState.cs" />
     <Compile Include="DataStructures\Float4.cs" />
-    <Compile Include="GameLogic\INetworkProvider.cs" />
-    <Compile Include="GameLogic\LocalPlayer.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\Log.cs" />
     <Compile Include="Networking\NebulaConnection.cs" />
