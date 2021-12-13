@@ -28,6 +28,9 @@ namespace NebulaNetwork.PacketProcessors.Session
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = false;
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).SetPlayerData(packet.LocalPlayerData, packet.IsNewPlayer);
 
+            Multiplayer.Session.IsInLobby = false;
+            Multiplayer.ShouldReturnToJoinMenu = false;
+
             GameDesc gameDesc = new GameDesc();
             gameDesc.SetForNewGame(packet.AlgoVersion, packet.GalaxySeed, packet.StarCount, 1, packet.ResourceMultiplier);
             DSPGame.StartGameSkipPrologue(gameDesc);
