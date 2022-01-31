@@ -7,13 +7,8 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    internal class ILSShipAddTakeProcessor : PacketProcessor<ILSShipAddTake>
+    public class ILSShipAddTakeProcessor : PacketProcessor<ILSShipAddTake>
     {
-        private readonly IPlayerManager playerManager;
-        public ILSShipAddTakeProcessor()
-        {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
-        }
         public override void ProcessPacket(ILSShipAddTake packet, NebulaConnection conn)
         {
             if (IsHost)
@@ -21,10 +16,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 return;
             }
 
-            if (IsClient)
-            {
-                Multiplayer.Session.Ships.AddTakeItem(packet);
-            }
+            Multiplayer.Session.Ships.AddTakeItem(packet);
         }
     }
 }
