@@ -23,6 +23,4 @@ internal class TurretPriorityUpdateProcessor : PacketProcessor<TurretPriorityUpd
             pool.buffer[packet.TurretIndex].vsSettings = packet.VSSettings;
         }
     }
-
-
 }
