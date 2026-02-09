@@ -86,5 +86,12 @@ internal class PlanetMemoUpdateProcessor : PacketProcessor<PlanetMemoUpdatePacke
                 newTodo.contentColorIndex = packet.ColorData;
             }
         }
+
+        // Refresh UI if it's open for this planet
+        var uiTodoPanel = UIRoot.instance.uiGame.planetDetail.uiTodoPanel;
+        if (uiTodoPanel.active && uiTodoPanel.astroId == packet.PlanetId)
+        {
+            uiTodoPanel.SetData(uiTodoPanel.astroId);
+        }
     }
 }
