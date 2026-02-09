@@ -45,14 +45,27 @@ internal class UIAstroTodoPanel_Patch
         }
     }
 
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(UIAstroTodoPanel._OnRegEvent))]
+    public static void OnRegEvent_Postfix(UIAstroTodoPanel __instance)
+    {
+        __instance.todoInputField.onEndEdit.AddListener(OnTodoInputFieldEndEdit);
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(UIAstroTodoPanel._OnUnregEvent))]
+    public static void OnUnregEvent_Postfix(UIAstroTodoPanel __instance)
+    {
+        __instance.todoInputField.onEndEdit.RemoveListener(OnTodoInputFieldEndEdit);
+    }
+
     /// <summary>
     /// Sync memo content when user finishes editing.
     /// </summary>
-    [HarmonyPostfix]
-    [HarmonyPatch(nameof(UIAstroTodoPanel.OnTodoInputFieldEndEdit))]
-    public static void OnTodoInputFieldEndEdit_Postfix(UIAstroTodoPanel __instance)
+    public static void OnTodoInputFieldEndEdit(string _)
     {
         if (!Multiplayer.IsActive || Multiplayer.Session.Warning.IsIncomingMarkerPacket) return;
+        var __instance = UIRoot.instance.uiGame.planetDetail.uiTodoPanel;
         if (__instance.astroId <= 0 || __instance.todo == null) return;
 
         Multiplayer.Session.Network.SendPacket(

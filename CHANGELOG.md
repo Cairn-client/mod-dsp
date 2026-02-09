@@ -1,5 +1,8 @@
 ## Changelog
 
+0.9.21:
+- Compatible with game version 0.10.34.28470
+
 0.9.20:
 - Compatible with game version 0.10.34.28392
 - @gabrielgad: Sync Planet Memo
