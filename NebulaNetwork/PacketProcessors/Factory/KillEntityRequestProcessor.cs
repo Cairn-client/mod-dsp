@@ -38,7 +38,7 @@ public class KillEntityRequestProcessor : PacketProcessor<KillEntityRequest>
             ref var entityPtr = ref factory.entityPool[packet.ObjId];
             if (entityPtr.id == packet.ObjId)
             {
-                factory.KillEntityFinally(GameMain.mainPlayer, packet.ObjId, ref CombatStat.empty);
+                factory.KillEntityFinally(GameMain.mainPlayer, packet.ObjId, ref CombatStat.empty, packet.SpawnPrebuild);
             }
 
             Multiplayer.Session.Factories.TargetPlanet = NebulaModAPI.PLANET_NONE;
