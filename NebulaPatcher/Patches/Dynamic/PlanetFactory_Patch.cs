@@ -757,7 +757,7 @@ internal class PlanetFactory_patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(PlanetFactory.KillEntityFinally))]
-    public static bool KillEntityFinally_Prefix(PlanetFactory __instance, int objId)
+    public static bool KillEntityFinally_Prefix(PlanetFactory __instance, int objId, bool spawnPrebuild)
     {
         if (!Multiplayer.IsActive || objId <= 0)
         {
@@ -769,7 +769,7 @@ internal class PlanetFactory_patch
             return Multiplayer.Session.Factories.IsIncomingRequest.Value;
         }
 
-        var packet = new KillEntityRequest(__instance.planetId, objId);
+        var packet = new KillEntityRequest(__instance.planetId, objId, spawnPrebuild);
         var starId = __instance.planet.star.id;
         Multiplayer.Session.Server.SendPacketToStar(packet, starId);
         return true;
