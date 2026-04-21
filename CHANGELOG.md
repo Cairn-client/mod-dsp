@@ -1,5 +1,8 @@
 ## Changelog
 
+0.9.22:
+- Compatible with game version 0.10.34.28518
+
 0.9.21:
 - Compatible with game version 0.10.34.28470
 
