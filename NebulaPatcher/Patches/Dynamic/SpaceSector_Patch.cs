@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using HarmonyLib;
 using NebulaWorld;
@@ -19,9 +19,8 @@ internal class SpaceSector_Patch
     {
         if (Multiplayer.IsActive && Multiplayer.Session.IsClient)
         {
-            // Set this.isCombatMode to false to skip the part of initial enemyDFHiveSystem
-            // Will revert it to the correct value during SpaceSector.Import called in GameStatesManager.OverwriteGlobalGameData
-            __instance.isCombatMode = false;
+            // Ensure isCombatMode is properly set so SectorModel and PrefabDescByModelIndex are initialized on client
+            __instance.isCombatMode = __instance.gameData?.gameDesc?.isCombatMode ?? true;
         }
     }
 
@@ -89,19 +88,7 @@ internal class SpaceSector_Patch
     {
         if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return;
 
-        // Fix NRE in DFSTurretComponent.InternalUpdate (PrefabDesc pdesc);(IL_0017)
-        for (var enemyId = 1; enemyId < __instance.enemyCursor; enemyId++)
-        {
-            ref var enemy = ref __instance.enemyPool[enemyId];
-            if (enemy.id != enemyId) continue;
-
-            if (SpaceSector.PrefabDescByModelIndex[enemy.modelIndex] == null)
-            {
-                var msg = $"Remove SpaceSector enemy[{enemyId}]: modelIndex{enemy.modelIndex}";
-                Log.WarnInform(msg);
-
-                __instance.enemyPool[enemyId].SetEmpty();
-            }
-        }
+        // Prevent purging valid space enemies with SetEmpty()
+        if (__instance.model == null || SpaceSector.PrefabDescByModelIndex == null) return;
     }
 }

@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System;
 using System.Collections.Generic;
@@ -187,8 +187,30 @@ public class EnemyManager : IDisposable
                 factory.KillEnemyFinally(enemyId, ref CombatStat.empty);
             }
 
-            factory.enemyRecycle[0] = enemyId;
-            factory.enemyRecycleCursor = 1;
+            var found = false;
+            for (var i = 0; i < factory.enemyRecycleCursor; i++)
+            {
+                if (factory.enemyRecycle[i] == enemyId)
+                {
+                    found = true;
+                    var lastIdx = factory.enemyRecycleCursor - 1;
+                    if (i != lastIdx)
+                    {
+                        factory.enemyRecycle[i] = factory.enemyRecycle[lastIdx];
+                        factory.enemyRecycle[lastIdx] = enemyId;
+                    }
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                if (factory.enemyRecycleCursor >= factory.enemyRecycle.Length)
+                {
+                    Array.Resize(ref factory.enemyRecycle, Math.Max(factory.enemyRecycle.Length * 2, factory.enemyRecycleCursor + 1));
+                }
+                factory.enemyRecycle[factory.enemyRecycleCursor++] = enemyId;
+            }
         }
     }
 
@@ -246,8 +268,31 @@ public class EnemyManager : IDisposable
                 ptr.isInvincible = false;
                 spaceSector.KillEnemyFinal(enemyId, ref CombatStat.empty);
             }
-            spaceSector.enemyRecycle[0] = enemyId;
-            spaceSector.enemyRecycleCursor = 1;
+
+            var found = false;
+            for (var i = 0; i < spaceSector.enemyRecycleCursor; i++)
+            {
+                if (spaceSector.enemyRecycle[i] == enemyId)
+                {
+                    found = true;
+                    var lastIdx = spaceSector.enemyRecycleCursor - 1;
+                    if (i != lastIdx)
+                    {
+                        spaceSector.enemyRecycle[i] = spaceSector.enemyRecycle[lastIdx];
+                        spaceSector.enemyRecycle[lastIdx] = enemyId;
+                    }
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                if (spaceSector.enemyRecycleCursor >= spaceSector.enemyRecycle.Length)
+                {
+                    Array.Resize(ref spaceSector.enemyRecycle, Math.Max(spaceSector.enemyRecycle.Length * 2, spaceSector.enemyRecycleCursor + 1));
+                }
+                spaceSector.enemyRecycle[spaceSector.enemyRecycleCursor++] = enemyId;
+            }
         }
     }
 

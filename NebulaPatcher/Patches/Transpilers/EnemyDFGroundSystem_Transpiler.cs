@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System.Collections.Generic;
 using System.Reflection;
@@ -72,6 +72,7 @@ internal class EnemyDFGroundSystem_Transpiler
 
     [HarmonyTranspiler]
     [HarmonyPatch(nameof(EnemyDFGroundSystem.GameTickLogic_Unit))]
+    [HarmonyPatch(typeof(GameLogic), nameof(GameLogic._enemy_ground_unit_parallel))]
     public static IEnumerable<CodeInstruction> GameTickLogic_Unit_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         try

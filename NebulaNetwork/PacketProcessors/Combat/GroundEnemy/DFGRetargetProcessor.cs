@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
@@ -19,7 +19,7 @@ public class DFGRetargetProcessor : PacketProcessor<DFGRetargetPacket>
         if (factory == null) return;
 
         var targets = Multiplayer.Session.Enemies.GroundTargets[packet.PlanetId];
-        if (packet.EnemyId <= targets.Length)
+        if (packet.EnemyId >= 0 && packet.EnemyId < targets.Length)
         {
             targets[packet.EnemyId] = packet.Target;
         }
