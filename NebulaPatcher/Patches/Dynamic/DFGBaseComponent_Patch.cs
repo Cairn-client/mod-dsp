@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System;
 using HarmonyLib;
@@ -27,7 +27,7 @@ internal class DFGBaseComponent_Patch
     public static bool ActiveAllUnit_Prefix(DFGBaseComponent __instance, long gameTick)
     {
         if (!Multiplayer.IsActive) return true;
-        if (!Multiplayer.Session.Combat.IsIncomingRequest.Value) return false;
+        if (Multiplayer.Session.IsClient && !Multiplayer.Session.Combat.IsIncomingRequest.Value) return false;
 
         // This will only trigger in event instead of every actived tick
         ref var ptr = ref __instance.groundSystem.units.buffer;

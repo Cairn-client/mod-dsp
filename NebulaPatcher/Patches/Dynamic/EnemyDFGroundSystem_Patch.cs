@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System;
 using HarmonyLib;
@@ -69,13 +69,45 @@ internal class EnemyDFGroundSystem_Patch
         {
             // Wait for server to authorize
             __instance._initiate_unit_list?.Clear();
+            __instance._activate_unit_list?.Clear();
             __instance._deactivate_unit_list?.Clear();
             return false;
         }
 
         // Skip InitiateUnit in multiplayer game
         __instance._initiate_unit_list?.Clear();
-        return true;
+        if (__instance._activate_unit_list?.Count > 0)
+        {
+            var planetId = __instance.planet.id;
+            var starId = __instance.planet.star.id;
+            foreach (var item in __instance._activate_unit_list)
+            {
+                int unitId = __instance.ActivateUnit(item.baseId, item.formId, item.port, item.gameTick);
+                if (unitId > 0)
+                {
+                    ref var ptr = ref __instance.units.buffer[unitId];
+                    if (ptr.id == unitId)
+                    {
+                        ptr.stateTick = item.stateTick;
+                        ptr.behavior = item.behavior;
+
+                        var packet = new DFGActivateUnitPacket(planetId, item.baseId, item.formId, item.port,
+                            item.behavior, item.stateTick, ptr.enemyId);
+                        Multiplayer.Session.Network.SendPacketToStar(packet, starId);
+                    }
+                }
+            }
+            __instance._activate_unit_list.Clear();
+        }
+        if (__instance._deactivate_unit_list?.Count > 0)
+        {
+            foreach (var unitId in __instance._deactivate_unit_list)
+            {
+                __instance.DeactivateUnit(unitId);
+            }
+            __instance._deactivate_unit_list.Clear();
+        }
+        return false;
     }
 
     [HarmonyPrefix]

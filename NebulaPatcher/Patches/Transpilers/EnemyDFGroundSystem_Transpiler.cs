@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System.Collections.Generic;
 using System.Reflection;
@@ -108,6 +108,70 @@ internal class EnemyDFGroundSystem_Transpiler
         catch (System.Exception e)
         {
             Log.Error("Transpiler GameTickLogic_Unit failed! Ground Dark Fog unit target will not in sync.");
+            Log.Error(e);
+            return instructions;
+        }
+    }
+
+    [HarmonyTranspiler]
+    [HarmonyPatch(typeof(GameLogic), nameof(GameLogic._enemy_ground_unit_parallel))]
+    public static IEnumerable<CodeInstruction> GameTickLogic_Unit_Parallel_Transpiler(IEnumerable<CodeInstruction> instructions)
+    {
+        try
+        {
+            var matcher = new CodeMatcher(instructions);
+
+            // Find enemySystem = planetFactory.enemySystem
+            matcher.MatchForward(
+                false,
+                new CodeMatch(OpCodes.Ldloc_S),
+                new CodeMatch(
+                    OpCodes.Ldfld,
+                    AccessTools.Field(
+                        typeof(PlanetFactory),
+                        nameof(PlanetFactory.enemySystem))),
+                new CodeMatch(OpCodes.Stloc_S)
+            );
+
+            if (!matcher.IsValid)
+                throw new System.Exception("EnemyDFGroundSystem local not found.");
+
+            var enemySystemLocal = matcher.Instruction.operand;
+
+            // Find switch(ptr2.behavior)
+            matcher.MatchForward(
+                false,
+                new CodeMatch(OpCodes.Ldloc_S),
+                new CodeMatch(
+                    OpCodes.Ldfld,
+                    AccessTools.Field(
+                        typeof(EnemyUnitComponent),
+                        nameof(EnemyUnitComponent.behavior))),
+                new CodeMatch(OpCodes.Stloc_S),
+                new CodeMatch(OpCodes.Ldloc_S),
+                new CodeMatch(OpCodes.Switch)
+            );
+
+            if (!matcher.IsValid)
+                throw new System.Exception("EnemyUnit behavior switch not found.");
+
+            var enemyUnitLocal = matcher.Instruction.operand;
+
+            matcher.Insert(
+                new CodeInstruction(OpCodes.Ldloc_S, enemySystemLocal),
+                new CodeInstruction(OpCodes.Ldloc_S, enemyUnitLocal),
+                new CodeInstruction(
+                    OpCodes.Call,
+                    AccessTools.Method(
+                        typeof(EnemyDFGroundSystem_Transpiler),
+                        nameof(SyncHatredTarget)))
+            );
+
+            return matcher.InstructionEnumeration();
+        }
+        catch (System.Exception e)
+        {
+            Log.Error("Transpiler GameTickLogic_Unit_Parallel failed! Ground Dark Fog unit target will not in sync.");
             Log.Error(e);
             return instructions;
         }

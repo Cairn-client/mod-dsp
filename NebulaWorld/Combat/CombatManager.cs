@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System;
 using System.Collections.Generic;
@@ -263,10 +263,7 @@ public class CombatManager : IDisposable
         {
             factory.vegePool[i].combatStatId = 0;
         }
-        for (var i = 1; i < factory.enemyCursor; i++)
-        {
-            factory.enemyPool[i].combatStatId = 0;
-        }
+        // Do not erase enemy combatStatId to preserve HP and shields on client
         for (var i = 1; i < factory.veinCursor; i++)
         {
             factory.veinPool[i].combatStatId = 0;
@@ -281,7 +278,7 @@ public class CombatManager : IDisposable
         for (var i = 1; i < combatStatCursor; i++)
         {
             ref var ptr = ref combatStatbuffer[i];
-            if (ptr.id == i && ptr.astroId == astroId)
+            if (ptr.id == i && ptr.astroId == astroId && ptr.objectType != (int)EObjectType.Enemy)
             {
                 combatStats.Remove(i);
                 count++;
