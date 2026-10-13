@@ -1,0 +1,82 @@
+name: Cairn release
+
+# A Cairn release is a bare X.Y.Z tag on master. It builds Nebula as the build workflow does, puts it with the BepInEx build the game's mods
+# run on into a Cairn mod pack (tools/cairn/Build-Pack.ps1) and publishes the pack, pack-index.json and game.json: the Cairn launcher reads
+# the index to install and update this mod. RELEASE_CHANNEL=beta publishes a pre-release (only players who chose beta are offered it).
+on:
+  push:
+    tags: ['[0-9]+.[0-9]+.[0-9]+']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  pack:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0   # can't shallowly clone due to git versioning
+
+      - name: The tag must be on master and equal VERSION
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        run: |
+          git fetch origin master
+          git merge-base --is-ancestor $env:GITHUB_SHA origin/master
+          if ($LASTEXITCODE -ne 0) { throw "tag $env:GITHUB_REF_NAME is not on master" }
+          $v = (Get-Content VERSION -TotalCount 1).Trim()
+          if ($v -ne $env:GITHUB_REF_NAME) { throw "tag $env:GITHUB_REF_NAME is not VERSION ($v)" }
+
+      - name: Clear output directory
+        shell: pwsh
+        run: Remove-Item -Recurse -Force -ErrorAction SilentlyContinue dist
+
+      - name: Add remote build identifier
+        shell: pwsh
+        run: New-Item -Name .remoteBuild -ItemType File -Force
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Build Nebula
+        run: dotnet build -c Release /p:PublicRelease=true
+
+      - name: Get the BepInEx build Dyson Sphere Program mods use
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dl | Out-Null
+          Invoke-WebRequest https://thunderstore.io/package/download/xiaoye97/BepInEx/5.4.17/ -OutFile dl/bepinex.zip -UseBasicParsing
+          $h = (Get-FileHash dl/bepinex.zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          Write-Host "BepInEx 5.4.17 sha256 $h"
+          if ($h -ne 'ea24d1c33fa63be98768d65057a79002a77a5fb20dab3c7e072cbd3044a1b9fe') { throw "the BepInEx package is not the one this pack was made with ($h)" }
+
+      - name: Build the pack
+        shell: pwsh
+        run: ./tools/cairn/Build-Pack.ps1 -BepInExZip dl/bepinex.zip
+
+      - name: Changelog
+        shell: pwsh
+        run: ./tools/cairn/New-ReleaseNotes.ps1 -OutFile notes.md -Tag $env:GITHUB_REF_NAME
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cairn-pack
+          path: |
+            release/Cairn-Pack-dsp-*.zip
+            release/pack-index.json
+            game/game.json
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $assets = @("release/Cairn-Pack-dsp-$env:GITHUB_REF_NAME.zip", 'release/pack-index.json') + (Get-ChildItem game -File | ForEach-Object { $_.FullName })
+          $flags = @()
+          if ((Get-Content RELEASE_CHANNEL -Raw).Trim() -eq 'beta') { $flags += '--prerelease' }
+          gh release create $env:GITHUB_REF_NAME @assets --title $env:GITHUB_REF_NAME --notes-file notes.md --verify-tag @flags

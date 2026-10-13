@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "id": "dsp",
+  "name": "Dyson Sphere Program",
+  "developer": "Youthcat Studio",
+  "franchise": "Dyson Sphere Program",
+  "steamAppId": 1366540,
+  "exe": "DSPGAME.exe",
+  "description": "Build your factories together. Nebula shares one universe between players: the same planets, factories, belts, research and Dyson spheres, with everyone building at once.",
+  "accent": "#F2A30F",
+  "images": {
+    "background": "dsp.jpg",
+    "logo": "dsp-logo.png",
+    "hero": "dsp-hero.jpg",
+    "poster": "dsp-poster.jpg",
+    "screenshots": [ "dsp-shot-1.jpg", "dsp-shot-2.jpg" ]
+  },
+  "ownSession": true,
+  "setup": [
+    { "kind": "steam-running" },
+    { "kind": "steam-app", "appId": 1366540, "title": "Dyson Sphere Program", "detail": "Install Dyson Sphere Program from your Steam library." },
+    { "kind": "game-found" },
+    { "kind": "mod-installed", "detail": "Download the mod above: Cairn puts it, and the mod loader it needs, in the game's folder." }
+  ],
+  "hostSteps": [
+    "Download the mod above. Cairn puts it and BepInEx, the loader it runs on, in the game's folder and keeps it up to date.",
+    "Press Play to start Dyson Sphere Program.",
+    "In the main menu choose Multiplayer, then Host Game.",
+    "Share your address with your friends. The mod listens on port 8469 (TCP)."
+  ],
+  "joinSteps": [
+    "Download the mod above, the same version as the host's, then press Play.",
+    "In the main menu choose Multiplayer, then Join Game.",
+    "Enter the host's address and port and connect: you arrive in the host's universe."
+  ],
+  "features": [
+    { "title": "Sessions", "items": [
+      { "name": "Host and join", "detail": "Join by address. Both players need the same version of the mod and the same game version.", "status": "inTest" },
+      { "name": "Same universe", "detail": "One universe for everyone: the same planets, resources and Dyson spheres.", "status": "inTest" },
+      { "name": "Kept up to date", "detail": "Cairn installs the mod and its loader in the game's folder and updates them when a new version is released." }
+    ] },
+    { "title": "Building together", "items": [
+      { "name": "Factories", "detail": "Buildings, belts, drones, stations and research are shared as they are made.", "status": "inTest" },
+      { "name": "Players", "detail": "Positions, appearance and effects are shown to everyone, on planets and in space.", "status": "inTest" },
+      { "name": "Combat", "detail": "Most of the combat is shared, a few features are still being worked on.", "status": "planned" }
+    ] }
+  ]
+}
